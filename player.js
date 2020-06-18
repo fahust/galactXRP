@@ -1,3 +1,5 @@
+var Ship = require('./ship.js');
+
 class Player {
 
     constructor(){
@@ -42,3 +44,4 @@ class Player {
 
 }
 
+module.exports = Player;
