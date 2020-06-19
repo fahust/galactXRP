@@ -11,11 +11,19 @@ setTimeout(() => {
     var player = {};
     player.n = "test"
     player.mdp = "mdpp"
-    universe.subscribe(player)
+    //universe.subscribe(player)//ok
+    obj = universe.connection(player)//ok
+    //obj.x = 5
+    //obj.s = 1
+    //console.log(universe.move(obj));//ok
+    obj.as = 1
+
+
+
+    //console.log(universe.playerConnected)
     
-    //universe.saveAll();//ok
-    console.log(universe)
-}, 1000);
+    universe.saveAll();//ok
+}, 100);
 //TEST
 
 
@@ -23,14 +31,14 @@ setTimeout(() => {
 io.on('connection', client => { 
 
     
-    socket.on('move', (data) => {
-        socket.emit('move', { resp:  Universe.move(data) });
+    socket.on('action', (data) => {
+        socket.emit('action', { resp:  Universe.actionSocket(data) });
     });
     socket.on('subscribe', (data) => {
-        socket.emit('subscribe', { resp: Universe.subscribe(data) });
+        socket.emit('subscribe', { resp: Universe.subscribe(data,socket) });
     });
     socket.on('connection', (data) => {
-        socket.emit('connection', { resp: Universe.connection(data) });
+        socket.emit('connection', { resp: Universe.connection(data,socket) });
     });
 
  });

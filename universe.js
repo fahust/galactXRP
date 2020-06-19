@@ -14,34 +14,36 @@ class Universe {
         this.nbrPlayer = 0;*/
     }
 
-    connection(player){
-        var obj;
+    connection(player,socket){
+        var obj = {};
         obj.connected = false;
         for (let [key, value] of Object.entries(this.playerSaved)) {
-            if(key.n == player.n && key.mdp == player.mdp){
-                obj = key;
+            if(this.playerSaved[key].n == player.n && this.playerSaved[key].mdp == player.mdp){
+                this.playerConnected[key] = Object.assign(new Player(), this.playerSaved[key]);
+                this.playerConnected[key].socket;
+                obj = this.playerConnected[key];
+                obj.connected = true;
                 break;
             }
-            //console.log(`${key}: ${value}`);
         }
-        if(obj.connected != false)
-            this.playerConnected[player.id] = obj;
         return obj;
     }
 
     disconnection(player){
         if(player.id != 0){
-            if(this.playerConnected[player.id])
+            if(this.playerConnected[player.id]){
                 delete this.playerConnected[player.id];
+                delete this.sector[player.s].players[player.id]
+            }
         }
     }
 
-    subscribe(player){
+    subscribe(player,socket){
         var exist = false;
         if(this.nbrPlayer == undefined)
             this.nbrPlayer = 0
-        for (let [key, value] of Object.entries(this.playerSaved)) {console.log(key)
-            if(key.n == player.n){
+        for (let [key, value] of Object.entries(this.playerSaved)) {
+            if(this.playerSaved[key].n == player.n){
                 exist = true;
                 break;
             }
@@ -52,11 +54,16 @@ class Universe {
             playerCreate.id = this.nbrPlayer;
             playerCreate.n = player.n;
             playerCreate.mdp = player.mdp;
+            playerCreate.s = 0;
+            playerCreate.x = 0;
+            playerCreate.y = 0;
+            playerCreate.z = 0;
+            playerCreate.socket = socket;
             this.playerConnected[playerCreate.id] = playerCreate;
             this.playerSaved[playerCreate.id] = playerCreate;
+            this.connection(playerCreate,socket)
         }else{
             return false;
-            //this.connection(player);
         }
         
     }
@@ -65,30 +72,78 @@ class Universe {
         var obj = {};
         if(this.playerConnected[player.id]){
             this.playerConnected[player.id].move(player);
-            this.savePlayer(player)
+            this.savePlayer(player);
         }
-        obj = this.returnAllPlayerInSector(player);
-        return obj;
     }
 
-    returnAllPlayerInSector(player){
+    shoot(player){
+        var obj = {};
+        if(this.playerConnected[player.id]){
+            this.playerConnected[player.id].shoot(player);
+            this.savePlayer(player);
+        }
+    }
+
+    stopShoot(player){
+        var obj = {};
+        if(this.playerConnected[player.id]){
+            this.playerConnected[player.id].stopShoot(player);
+            this.savePlayer(player);
+        }
+    }
+
+    changeSector(player){
+        var obj = {};
+        if(this.playerConnected[player.id]){
+            delete this.sector[player.ls].players[player.id] //delete current player of last sector
+            for (let [key, value] of Object.entries(this.sector[player.ls].players)) {//send info of deleted player at last sector
+                if(this.sector[player.ls].players[key].socket && this.sector[player.ls].players[key].id != player.id){
+                    this.sector[player.ls].players[key].socket.emit('action' , {resp : this.playerConnected[player.id]})
+                }
+            }
+            this.playerConnected[player.id].s = player.ns; //new sector
+            player.s = player.ns;
+            this.savePlayer(player);
+        }
+        this.actionSocket(player);
+    }
+
+    actionSocket(player){
+        if(!this.sector[player.s])//create sector if not exist
+            this.sector[player.s] = {};
+        if(!this.sector[player.s].players)//create array players if not exist
+            this.sector[player.s].players = {};
+        if(player.a == 1)//action move
+            this.move(player)
+        if(player.a == 2)//action shoot
+            this.shoot(player)
+        this.sector[player.s].players[player.id] = this.playerConnected[player.id];
+        for (let [key, value] of Object.entries(this.sector[player.s].players)) {
+            if(this.sector[player.s].players[key].socket && this.sector[player.s].players[key].id != player.id){
+                this.sector[player.s].players[key].socket.emit('action' , {resp : this.playerConnected[player.id]})
+            }
+        }
+
+    }
+
+    /*returnAllPlayerInSector(player){
         if(!this.sector[player.s])//create sector if not exist
             this.sector[player.s] = {};
         if(!this.sector[player.s].players)//create array players if not exist
             this.sector[player.s].players = {};
         this.sector[player.s].players[player.id] = player;
         return this.sector[player.s].players
-    }
-
-    interact(player){
-
-    }
+    }*/
 
     savePlayer(player){
+        socket = this.playerConnected[player.id].socket;
+        this.playerConnected[player.id].socket = {};
         this.playerSaved[player.id] = this.playerConnected[player.id];
+        this.playerConnected[player.id].socket = socket;
     }
 
     saveAll(){
+        this.playerConnected = {};
         try {
             let data = JSON.stringify(this);
             fs.writeFile('universe.json', data, (err) => {

@@ -16,6 +16,7 @@ class Player {
         this.ar; //animation reload // 0
         this.as; //animation shoot // 0
         this.ap; //animation punch // 0
+        this.socket;
     }
 
     returnHangar(){
