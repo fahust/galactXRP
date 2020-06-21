@@ -29,10 +29,10 @@ setTimeout(() => {
 
 
 io.on('connection', client => { 
-
+    console.log(client);
     
     socket.on('action', (data) => {
-        socket.emit('action', { resp:  Universe.actionSocket(data) });
+        Universe.actionSocket(data);
     });
     socket.on('subscribe', (data) => {
         socket.emit('subscribe', { resp: Universe.subscribe(data,socket) });
@@ -43,5 +43,5 @@ io.on('connection', client => {
 
  });
 
-io.listen(3000);
+io.listen(12000);
 console.log('GalactX RP Server Running')

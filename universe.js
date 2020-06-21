@@ -20,9 +20,10 @@ class Universe {
         for (let [key, value] of Object.entries(this.playerSaved)) {
             if(this.playerSaved[key].n == player.n && this.playerSaved[key].mdp == player.mdp){
                 this.playerConnected[key] = Object.assign(new Player(), this.playerSaved[key]);
-                this.playerConnected[key].socket;
+                this.playerConnected[key].socket;//put socket in object player
                 obj = this.playerConnected[key];
                 obj.connected = true;
+                this.actionSocket(this.playerConnected[key])//send connection at all player sector
                 break;
             }
         }
@@ -117,6 +118,8 @@ class Universe {
             this.move(player)
         if(player.a == 2)//action shoot
             this.shoot(player)
+        if(player.a == 3)//action stop shoot
+            this.stopShoot(player)
         this.sector[player.s].players[player.id] = this.playerConnected[player.id];
         for (let [key, value] of Object.entries(this.sector[player.s].players)) {
             if(this.sector[player.s].players[key].socket && this.sector[player.s].players[key].id != player.id){
@@ -125,15 +128,6 @@ class Universe {
         }
 
     }
-
-    /*returnAllPlayerInSector(player){
-        if(!this.sector[player.s])//create sector if not exist
-            this.sector[player.s] = {};
-        if(!this.sector[player.s].players)//create array players if not exist
-            this.sector[player.s].players = {};
-        this.sector[player.s].players[player.id] = player;
-        return this.sector[player.s].players
-    }*/
 
     savePlayer(player){
         socket = this.playerConnected[player.id].socket;

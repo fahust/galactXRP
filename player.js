@@ -43,6 +43,14 @@ class Player {
         this.z = player.z;
     }
 
+    shoot(player){
+        this.as = player.as;
+    }
+
+    stopShoot(player){
+        this.as = player.as;
+    }
+
 }
 
 module.exports = Player;
