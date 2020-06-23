@@ -12,7 +12,7 @@ setTimeout(() => {
     player.n = "test"
     player.mdp = "mdpp"
     //universe.subscribe(player)//ok
-    obj = universe.connection(player)//ok
+    //obj = universe.connection(player)//ok
     //obj.x = 5
     //obj.s = 1
     //console.log(universe.move(obj));//ok

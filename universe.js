@@ -70,7 +70,6 @@ class Universe {
     }
 
     move(player){
-        var obj = {};
         if(this.playerConnected[player.id]){
             this.playerConnected[player.id].move(player);
             this.savePlayer(player);
@@ -78,7 +77,6 @@ class Universe {
     }
 
     shoot(player){
-        var obj = {};
         if(this.playerConnected[player.id]){
             this.playerConnected[player.id].shoot(player);
             this.savePlayer(player);
@@ -86,15 +84,53 @@ class Universe {
     }
 
     stopShoot(player){
-        var obj = {};
         if(this.playerConnected[player.id]){
             this.playerConnected[player.id].stopShoot(player);
             this.savePlayer(player);
         }
     }
 
+    putObject(player){
+        if(this.sector[player.s]){
+            if(!this.sector[player.s].obj)
+                this.sector[player.s].obj = {};
+                this.sector[player.s].nbrObj = 0;
+            let len = this.sector[player.s].nbrObj;
+            player.po.id = len;
+            this.sector[player.s].obj.len = player.po;
+            this.savePlayer(player);
+            for (let [key, value] of Object.entries(this.sector[player.s].players)) {
+                if(this.sector[player.s].players[key].socket && this.sector[player.s].players[key].id != player.id){
+                    this.sector[player.s].players[key].socket.emit('addObject' , {resp : this.sector[player.s].obj.len})
+                }
+            }
+            this.sector[player.s].nbrObj++
+        }
+    }
+
+    takeObject(player){
+        if(this.sector[player.s]){
+            this.savePlayer(player);
+            for (let [key, value] of Object.entries(this.sector[player.s].players)) {
+                if(this.sector[player.s].players[key].socket && this.sector[player.s].players[key].id != player.id){
+                    this.sector[player.s].players[key].socket.emit('takeObject' , {resp : this.sector[player.s].obj[player.po.id]})
+                }
+            }
+            delete this.sector[player.s].obj[player.po.id];
+        }
+    }
+
+    allObject(player){
+        if(this.sector[player.s]){
+            for (let [key, value] of Object.entries(this.sector[player.s].players)) {
+                if(this.sector[player.s].players[key].socket && this.sector[player.s].players[key].id != player.id){
+                    this.sector[player.s].players[key].socket.emit('allObject' , {resp : this.sector[player.s].obj})
+                }
+            }
+        }
+    }
+
     changeSector(player){
-        var obj = {};
         if(this.playerConnected[player.id]){
             delete this.sector[player.ls].players[player.id] //delete current player of last sector
             for (let [key, value] of Object.entries(this.sector[player.ls].players)) {//send info of deleted player at last sector
@@ -106,6 +142,7 @@ class Universe {
             player.s = player.ns;
             this.savePlayer(player);
         }
+        this.allObject(player);
         this.actionSocket(player);
     }
 
@@ -120,10 +157,16 @@ class Universe {
             this.shoot(player)
         if(player.a == 3)//action stop shoot
             this.stopShoot(player)
+        if(player.a == 10)//action put object
+            this.putObject(player)
+        if(player.a == 11)//action take object
+            this.takeObject(player)
         this.sector[player.s].players[player.id] = this.playerConnected[player.id];
-        for (let [key, value] of Object.entries(this.sector[player.s].players)) {
-            if(this.sector[player.s].players[key].socket && this.sector[player.s].players[key].id != player.id){
-                this.sector[player.s].players[key].socket.emit('action' , {resp : this.playerConnected[player.id]})
+        if(player.a < 10){
+            for (let [key, value] of Object.entries(this.sector[player.s].players)) {
+                if(this.sector[player.s].players[key].socket && this.sector[player.s].players[key].id != player.id){
+                    this.sector[player.s].players[key].socket.emit('action' , {resp : this.playerConnected[player.id]})
+                }
             }
         }
 
