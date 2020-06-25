@@ -1,6 +1,35 @@
 var Player = require('./player.js');
 const fs = require('fs');
-const argon2 = require('argon2');
+const bcrypt = require('bcrypt');
+const saltRounds = 1;
+/*
+const myPlaintextPassword = 's0/\/\P4$$w0rD';
+const someOtherPlaintextPassword = 'not_bacon';
+
+var hashed = '';
+
+bcrypt.genSalt(saltRounds, function(err, salt) {
+    bcrypt.hash(myPlaintextPassword, salt, function(err, hash) {
+        // Store hash in your password DB.
+        hashed = hash;
+        
+        
+        bcrypt.compare(myPlaintextPassword, hashed, function(err, result) {
+            // result == true
+            console.log(myPlaintextPassword,'     -     ',hashed);
+            console.log(result);
+        });
+        bcrypt.compare(someOtherPlaintextPassword, hashed, function(err, result) {
+            // result == false
+            console.log(someOtherPlaintextPassword,'     -     ',hashed);
+            console.log(result);
+        });
+
+
+    });
+});*/
+
+
 
 class Universe {
 
@@ -21,7 +50,8 @@ class Universe {
         for (let [key, value] of Object.entries(this.playerSaved)) {
             if(this.playerSaved[key].n == player.n) {
                 var decrypt = this.decryptPassword(this.playerSaved[key].mdp,player.mdp).then((value) => {
-                    obj = this.connectionValidate(player,socket,value,obj,key);
+                    console.log(value);
+                    obj = this.connectionValidate(player,socket,value,obj);
                 })
                 break;
             }
@@ -29,7 +59,7 @@ class Universe {
         return obj;
     }
 
-    connectionValidate(player,socket,decrypt,obj,key){
+    connectionValidate(player,socket,decrypt,obj){
         if(decrypt == true){
             this.playerConnected[key] = Object.assign(new Player(), this.playerSaved[key]);
             this.playerConnected[key].socket;//put socket in object player
@@ -50,25 +80,24 @@ class Universe {
     }
 
     async hashPassword (hash) {
-        try {
-            return await argon2.hash(hash);
-          } catch (err) {console.log('error')
-          return false
-            //...
-          }
+      
+        const hashedPassword = await new Promise((resolve, reject) => {
+                bcrypt.hash(hash, 10, function(err, hashed) {
+                    if (err) reject(err);
+                    resolve(hashed);
+                })
+        })
+        return hashedPassword;
     }
 
     async decryptPassword (hash,notHashed) {
-        try {
-            if (await argon2.verify( hash, notHashed)) {
-                return true
-            } else {
-                return false
-            }
-          } catch (err) {console.log(err)
-            return false
-            // internal failure
-          }
+        const hashedPassword = await new Promise((resolve, reject) => {
+            bcrypt.compare(hash.toString(), notHashed.toString(), function(err, result) {
+                if (err) reject(err);
+                resolve(result);
+            })
+        })
+        return hashedPassword;
     }
 
 
@@ -98,7 +127,6 @@ class Universe {
                 this.playerConnected[playerCreate.id] = Object.assign(new Player(), playerCreate);
                 this.playerSaved[playerCreate.id] = Object.assign(new Player(), playerCreate);
                 playerCreate.mdp = player.mdp;
-                //console.log(this.playerSaved)
                 this.connection(playerCreate,socket);
             });
         }else{

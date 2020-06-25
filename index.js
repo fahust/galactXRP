@@ -11,18 +11,22 @@ setTimeout(() => {
     var player = {};
     player.n = "test"
     player.mdp = "mdpp"
-    //universe.subscribe(player)//ok
+    universe.subscribe(player)//ok
+    //console.log(universe)
+    setTimeout(() => {
     //obj = universe.connection(player)//ok
+    }, 200);
+    //console.log(obj)
     //obj.x = 5
     //obj.s = 1
     //console.log(universe.move(obj));//ok
-    obj.as = 1
+    //obj.as = 1
 
 
 
     //console.log(universe.playerConnected)
     
-    universe.saveAll();//ok
+    //universe.saveAll();//ok
 }, 100);
 //TEST
 
