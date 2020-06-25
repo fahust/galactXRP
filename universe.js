@@ -114,6 +114,13 @@ class Universe {
         }
     }
 
+    jump(player){
+        if(this.playerConnected[player.id]){
+            this.playerConnected[player.id].jump(player);
+            this.savePlayer(player);
+        }
+    }
+
     shoot(player){
         if(this.playerConnected[player.id]){
             this.playerConnected[player.id].shoot(player);
@@ -124,6 +131,20 @@ class Universe {
     stopShoot(player){
         if(this.playerConnected[player.id]){
             this.playerConnected[player.id].stopShoot(player);
+            this.savePlayer(player);
+        }
+    }
+
+    getInShip(player){
+        if(this.playerConnected[player.id]){
+            this.playerConnected[player.id].getInShip(player);
+            this.savePlayer(player);
+        }
+    }
+
+    getOutShip(player){
+        if(this.playerConnected[player.id]){
+            this.playerConnected[player.id].GetOutShip(player);
             this.savePlayer(player);
         }
     }
@@ -195,6 +216,12 @@ class Universe {
             this.shoot(player)
         if(player.a == 3)//action stop shoot
             this.stopShoot(player)
+        if(player.a == 4)//action stop shoot
+            this.jump(player)
+        if(player.a == 5)//take ship
+            this.getInShip(player)
+        if(player.a == 6)//take ship
+            this.getOutShip(player)
         if(player.a == 10)//action put object
             this.putObject(player)
         if(player.a == 11)//action take object
