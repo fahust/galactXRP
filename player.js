@@ -12,11 +12,18 @@ class Player {
         this.z;
         this.h; //hangar ship// {}
         this.w; //weapon // 0
+        //stats
+        this.sf; //faim
+        this.ss; //soif
+        this.shp; //hp
+        //RP
+        this.m; //metier
+        this.g; //guild
         //animation
-        this.ar; //animation reload // 0
-        this.as; //animation shoot // 0
-        this.ap; //animation punch // 0
-        this.aj; //animation jump // 0
+        this.ar; //animation reload // 0 a 100
+        this.as; //animation shoot // 0 a 100
+        this.ap; //animation punch // 0 a 100
+        this.aj; //animation jump // 0 a 100
         this.socket;
     }
 
@@ -47,10 +54,6 @@ class Player {
         }
     }
 
-    shoot(player){
-        this.as = player.as;
-    }
-
     jump(player){
         this.aj = player.aj;
     }
@@ -69,8 +72,22 @@ class Player {
         this.sn = 0;//ship Now
     }
 
-    stopShoot(player){
-        this.as = player.as;
+    newJob(player){
+        this.m = player.m;
+    }
+
+    newGuild(player){
+        this.g = player.g;
+    }
+
+    saveStats(player){
+        this.sf = player.sf; //faim
+        this.ss = player.ss; //soif
+        this.shp = player.shp; //hp
+        //animation
+        this.as = player.as; //shoot
+        this.ar = player.ar; //animation reload
+        this.ap = player.ap; //animation punch
     }
 
 }

@@ -8,7 +8,7 @@ userevents = {}
 userdata = {}
 use = {}
 prev = {}
-splitter = "[{//§//}]"
+splitter = "{|}"
 
 def savevariable(name,data,client):
     global userdata

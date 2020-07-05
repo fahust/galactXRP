@@ -29,6 +29,8 @@ def move(c,addr,mess):
    suspengine.savevariable("at",mess['at'],c)
    suspengine.savevariable("dt",mess['dt'],c)
    suspengine.savevariable("s",mess['s'],c)
+   suspengine.savevariable("n",mess['n'],c)
+   suspengine.savevariable("sc",mess['sc'],c)
    clientList = suspengine.callvariablelist("connected",1)
    movePlayer = {}
    movePlayer['x'] = suspengine.callvariable("x",c)
@@ -38,6 +40,8 @@ def move(c,addr,mess):
    movePlayer['at'] = suspengine.callvariable("at",c)
    movePlayer['dt'] = suspengine.callvariable("dt",c)
    movePlayer['s'] = suspengine.callvariable("s",c)
+   movePlayer['n'] = suspengine.callvariable("n",c)
+   movePlayer['sc'] = suspengine.callvariable("sc",c)
    for co in clientList:
       if suspengine.callvariable("id",co) != suspengine.callvariable("id",c):
          suspengine.emit("move",movePlayer,co)

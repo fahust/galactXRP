@@ -121,20 +121,6 @@ class Universe {
         }
     }
 
-    shoot(player){
-        if(this.playerConnected[player.id]){
-            this.playerConnected[player.id].shoot(player);
-            this.savePlayer(player);
-        }
-    }
-
-    stopShoot(player){
-        if(this.playerConnected[player.id]){
-            this.playerConnected[player.id].stopShoot(player);
-            this.savePlayer(player);
-        }
-    }
-
     getInShip(player){
         if(this.playerConnected[player.id]){
             this.playerConnected[player.id].getInShip(player);
@@ -145,6 +131,20 @@ class Universe {
     getOutShip(player){
         if(this.playerConnected[player.id]){
             this.playerConnected[player.id].GetOutShip(player);
+            this.savePlayer(player);
+        }
+    }
+
+    newJob(player){
+        if(this.playerConnected[player.id]){
+            this.playerConnected[player.id].newJob(player);
+            this.savePlayer(player);
+        }
+    }
+
+    newGuild(player){
+        if(this.playerConnected[player.id]){
+            this.playerConnected[player.id].newGuild(player);
             this.savePlayer(player);
         }
     }
@@ -212,21 +212,25 @@ class Universe {
             this.sector[player.s].players = {};
         if(player.a == 1)//action move
             this.move(player)
-        if(player.a == 2)//action shoot
-            this.shoot(player)
-        if(player.a == 3)//action stop shoot
-            this.stopShoot(player)
-        if(player.a == 4)//action stop shoot
+        if(player.a == 2)//action stop shoot
             this.jump(player)
-        if(player.a == 5)//take ship
+        if(player.a == 3)
             this.getInShip(player)
-        if(player.a == 6)//take ship
+        if(player.a == 4)
             this.getOutShip(player)
         if(player.a == 10)//action put object
             this.putObject(player)
         if(player.a == 11)//action take object
             this.takeObject(player)
+        if(player.a == 20)//action take object
+            this.newGuild(player)
+        if(player.a == 21)//action take object
+            this.newJob(player)
         this.sector[player.s].players[player.id] = this.playerConnected[player.id];
+        if(this.playerConnected[player.id]){//stats and animation
+            this.playerConnected[player.id].saveStats(player);
+            this.savePlayer(player);
+        }
         if(player.a < 10){
             for (let [key, value] of Object.entries(this.sector[player.s].players)) {
                 if(this.sector[player.s].players[key].socket && this.sector[player.s].players[key].id != player.id){
